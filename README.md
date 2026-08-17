@@ -28,8 +28,8 @@ another replacement.
 
 - Skyrim VR 1.4.15
 - SKSEVR
-- NavigateVR â€” Equipable Dynamic Compass and Maps
-- Microsoft Visual C++ Redistributable 2015â€“2022 (x64)
+- NavigateVR — Equipable Dynamic Compass and Maps
+- Microsoft Visual C++ Redistributable 2015–2022 (x64)
 
 The DLL was built with CommonLibSSE-NG from the `ng` branch of
 `alandtse/CommonLibVR`.
@@ -41,8 +41,8 @@ contains:
 
 ```text
 SKSE/
-â””â”€â”€ Plugins/
-    â””â”€â”€ NavigateVRMapFramework.dll
+└── Plugins/
+    └── NavigateVRMapFramework.dll
 ```
 
 Map addons install definitions under:
@@ -165,4 +165,3 @@ Map marker calibration data may coexist in the same addon JSON under the
 ## License
 
 NavigateVR Map Framework is released under the [MIT License](LICENSE).
-

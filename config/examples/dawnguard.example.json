@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "mapPack": "Dawnguard",
+  "maps": [
+    {
+      "id": "dayspring-canyon",
+      "worldspace": {
+        "plugin": "Dawnguard.esm",
+        "formID": "0x001DB8"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000800"
+        },
+        "right": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000801"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "item": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x00080C"
+        }
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    },
+    {
+      "id": "forgotten-vale",
+      "worldspace": {
+        "plugin": "Dawnguard.esm",
+        "formID": "0x000BB5"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000802"
+        },
+        "right": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000803"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "item": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x00080E"
+        }
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    },
+    {
+      "id": "soul-cairn",
+      "worldspace": {
+        "plugin": "Dawnguard.esm",
+        "formID": "0x001408"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000804"
+        },
+        "right": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x000805"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "item": {
+          "plugin": "NavigateVR - Dawnguard Maps.esp",
+          "formID": "0x00080D"
+        }
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    }
+  ]
+}

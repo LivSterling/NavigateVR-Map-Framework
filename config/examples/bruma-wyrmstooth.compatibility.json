@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "mapPack": "NavigateVR Bruma and Wyrmstooth Compatibility",
+  "maps": [
+    {
+      "id": "bruma",
+      "worldspace": {
+        "plugin": "BSHeartland.esm",
+        "formID": "0x0A764B"
+      },
+      "items": {
+        "left": {
+          "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+          "formID": "0x03A356"
+        },
+        "right": {
+          "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+          "formID": "0x03A35A"
+        }
+      },
+      "ownership": {
+        "required": false
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    },
+    {
+      "id": "wyrmstooth",
+      "worldspace": {
+        "plugin": "Wyrmstooth.esp",
+        "formID": "0x000D62"
+      },
+      "items": {
+        "left": {
+          "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+          "formID": "0x03A355"
+        },
+        "right": {
+          "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+          "formID": "0x03A359"
+        }
+      },
+      "ownership": {
+        "required": false
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    }
+  ]
+}

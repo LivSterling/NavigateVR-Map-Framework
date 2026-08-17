@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "mapPack": "NavigateVR City Maps",
+  "maps": [
+    {
+      "id": "whiterun-city",
+      "worldspace": {
+        "plugin": "Skyrim.esm",
+        "formID": "0x01A26F"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - City Maps.esp",
+          "formID": "0x000800"
+        },
+        "right": {
+          "plugin": "NavigateVR - City Maps.esp",
+          "formID": "0x000801"
+        }
+      },
+      "ownership": {
+        "required": false
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true
+      },
+      "markers": {
+        "CalibrationLeft": null,
+        "CalibrationRight": null
+      }
+    }
+  ]
+}
