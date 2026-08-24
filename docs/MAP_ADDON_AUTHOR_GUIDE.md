@@ -215,7 +215,7 @@ Papyrus calls, voice filenames, or other external references to those records.
 
 ## 8. Create the modular JSON
 
-Install one file under:
+Install the canonical definition under:
 
 ```text
 SKSE/Plugins/NavigateVRMaps/my-map-pack.json
@@ -257,8 +257,10 @@ Minimal definition:
         "useForInteriors": true
       },
       "markers": {
-        "CalibrationLeft": null,
-        "CalibrationRight": null
+        "calibration": {
+          "left": null,
+          "right": null
+        }
       }
     }
   ]
@@ -287,7 +289,8 @@ Incorrect: "formID": "0xFE123800"
 | `selection.enabled` | Allows temporarily disabling an entry |
 | `selection.priority` | Higher wins when two maps share a worldspace |
 | `selection.useForInteriors` | Allows cached exterior matching indoors |
-| `markers` | Reserved shared calibration data for marker presenters |
+| `markers.calibration.left` | Left-hand 2x3 world-to-UV matrix |
+| `markers.calibration.right` | Right-hand 2x3 world-to-UV matrix |
 
 Unknown top-level map fields are ignored by the selector, allowing other
 NavigateVR tools to share the definition.
@@ -310,8 +313,8 @@ For each hand:
 6. Place its texture point on the same landmark.
 7. Calibrate.
 8. Test additional points that were not used in the solution.
-9. Copy the resulting 2×3 matrix into `CalibrationLeft` or
-   `CalibrationRight`.
+9. Copy the resulting 2x3 matrix into `markers.calibration.left` or
+   `markers.calibration.right`.
 
 The affine transform is:
 
@@ -323,9 +326,16 @@ v = d*x + e*y + f
 `u` and `v` are normalized texture coordinates. Calibration is geographic; it
 does not replace the NIF's hand-local transform.
 
-The current Map Markers calibrator exports its own object layout. Until its DLL
-and this shared schema are finalized together, preserve the generated matrices
-exactly and verify the expected nesting with the Map Markers author.
+The current Map Markers calibrator exports the nested `markers.calibration`
+layout shown above. Preserve every generated number exactly; rounding the
+matrix can visibly move markers on tightly cropped maps.
+
+NavigateVR Map Framework and compatible marker presenters read the same
+canonical definition:
+
+```text
+SKSE/Plugins/NavigateVRMaps/my-map-pack.json
+```
 
 ## 10. Package the addon
 
@@ -360,7 +370,7 @@ Do not ship:
 
 - Build logs
 - PDB files in the normal user download
-- Duplicate JSON copies in multiple mods
+- Duplicate definitions in consumer-specific directories
 - Temporary donor overrides
 - A second framework DLL
 

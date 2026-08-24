@@ -85,8 +85,14 @@ foreach ($inputPath in $Path) {
             Assert-FormSpec $map.ownership.item "$id.ownership.item"
         }
 
-        Assert-Matrix $map.markers.CalibrationLeft "$id.markers.CalibrationLeft"
-        Assert-Matrix $map.markers.CalibrationRight "$id.markers.CalibrationRight"
+        if ($null -ne $map.markers.calibration) {
+            Assert-Matrix $map.markers.calibration.left "$id.markers.calibration.left"
+            Assert-Matrix $map.markers.calibration.right "$id.markers.calibration.right"
+        } else {
+            # Legacy draft layout retained so older examples remain diagnosable.
+            Assert-Matrix $map.markers.CalibrationLeft "$id.markers.CalibrationLeft"
+            Assert-Matrix $map.markers.CalibrationRight "$id.markers.CalibrationRight"
+        }
     }
 
     Write-Host "Valid: $resolved ($($document.maps.Count) map definitions)"

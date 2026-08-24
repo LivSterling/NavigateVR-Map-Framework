@@ -157,6 +157,18 @@
         "markers": {
           "type": "object",
           "properties": {
+            "calibration": {
+              "type": "object",
+              "properties": {
+                "left": {
+                  "$ref": "#/$defs/matrix"
+                },
+                "right": {
+                  "$ref": "#/$defs/matrix"
+                }
+              },
+              "additionalProperties": true
+            },
             "CalibrationLeft": {
               "$ref": "#/$defs/matrix"
             },

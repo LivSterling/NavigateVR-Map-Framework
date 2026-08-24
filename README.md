@@ -160,8 +160,12 @@ This framework selects physical map armors. It does not:
 - Persist the last exterior worldspace across saved games
 
 Map marker calibration data may coexist in the same addon JSON under the
-`markers` object. The selector ignores fields it does not use.
+`markers.calibration.left` and `markers.calibration.right` fields. The selector
+ignores marker-presenter fields it does not use.
 
 ## License
 
-NavigateVR Map Framework is released under the [MIT License](LICENSE).
+The framework's original source is released under the [MIT License](LICENSE).
+The compiled DLL statically links CommonLibSSE-NG and is distributed with its
+GPL-3.0-or-later terms and linking exceptions. See
+[Third-party notices](THIRD_PARTY_NOTICES.md).

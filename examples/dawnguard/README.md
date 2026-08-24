@@ -16,7 +16,7 @@ worldspace.
 - Dawnguard
 - SKSEVR
 - NavigateVR — Equipable Dynamic Compass and Maps
-- NavigateVR Map Framework 0.3.0 or later
+- NavigateVR Map Framework 0.3.1 or later
 
 ## Installation
 
@@ -67,11 +67,10 @@ a map in the associated exterior may fall back to NavigateVR's normal map.
 
 ## Map markers
 
-The included JSON reserves `CalibrationLeft` and `CalibrationRight`, but the
-matrices are currently `null`. The physical maps and automatic selection work
-without Map Markers for NavigateVR. Accurate player/quest markers require a
-future calibrated JSON update and a Map Markers build that consumes the shared
-schema.
+The included JSON contains tested left- and right-hand calibration matrices for
+all three maps. The selector and compatible marker presenters share this one
+definition under `SKSE/Plugins/NavigateVRMaps`. Map Markers itself remains
+optional.
 
 ## Dialogue and audio
 

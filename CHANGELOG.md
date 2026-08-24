@@ -7,6 +7,10 @@
 - Added a no-op path when NavigateVR has already equipped the exact armor
   selected by the registry. This fixes compatibility definitions that point to
   NavigateVR's built-in Bruma or Wyrmstooth armors.
+- Updated the schema, validator, examples, and author guide for the calibrated
+  `markers.calibration.left/right` layout used by Map Markers for NavigateVR.
+- Standardized selector and marker integrations on one canonical definition
+  under `SKSE/Plugins/NavigateVRMaps`.
 
 ## 0.3.0
 

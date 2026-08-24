@@ -2,6 +2,7 @@ includes("lib/commonlibsse-ng")
 
 set_project("NavigateVRMapFramework")
 set_version("0.3.1")
+set_license("MIT")
 set_languages("c++23")
 
 add_rules("mode.debug", "mode.releasedbg")
