@@ -1,0 +1,9 @@
+{
+  "$schema": "../../schema/navigatevr-map-framework-settings.schema.json",
+  "schemaVersion": 1,
+  "navigateVRController": {
+    "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+    "editorID": "TRC_WorldMap",
+    "formID": "0x037482"
+  }
+}

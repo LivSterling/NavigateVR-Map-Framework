@@ -42,8 +42,34 @@ contains:
 ```text
 SKSE/
 └── Plugins/
-    └── NavigateVRMapFramework.dll
+    ├── NavigateVRMapFramework.dll
+    └── NavigateVRMapFramework.json
 ```
+
+The required settings file identifies NavigateVR's controller weapon by plugin,
+EditorID, and an optional plugin-local FormID fallback. The shipped defaults
+work with the original NavigateVR plugin. EditorID lookup allows the framework
+to find `TRC_WorldMap` after FormID compaction, while the owning-plugin check
+prevents an unrelated record with the same EditorID from being accepted.
+
+Users with a renamed or customized NavigateVR plugin can edit:
+
+```json
+{
+  "schemaVersion": 1,
+  "navigateVRController": {
+    "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+    "editorID": "TRC_WorldMap",
+    "formID": "0x037482"
+  }
+}
+```
+
+The FormID is local to the named plugin, not a complete load-order FormID. It
+may be set to `null` when EditorID lookup is sufficient. At least one of
+`editorID` or `formID` must be present. If this file is missing or invalid, the
+framework logs the problem and disables map selection instead of using a
+compiled plugin name or FormID.
 
 Map addons install definitions under:
 
@@ -112,6 +138,8 @@ Documents/My Games/Skyrim VR/SKSE/NavigateVRMapFramework.log
 
 The log reports:
 
+- The framework controller settings loaded
+- Whether the NavigateVR controller resolved by EditorID or FormID fallback
 - Every JSON file parsed
 - Every definition successfully resolved
 - Missing plugins, forms, or ownership items
@@ -125,6 +153,8 @@ NIF, DDS, ESPFE, ownership, calibration, JSON, packaging, and testing workflow.
 
 The machine-readable schema is
 [navigatevr-maps.schema.json](schema/navigatevr-maps.schema.json).
+Framework settings use
+[navigatevr-map-framework-settings.schema.json](schema/navigatevr-map-framework-settings.schema.json).
 
 ## Building from source
 

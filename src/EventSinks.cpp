@@ -2,14 +2,25 @@
 
 namespace
 {
-	constexpr RE::FormID kNavigateVRWorldMapLocalID = 0x037482;
-	constexpr std::string_view kNavigateVRPlugin =
-		"Navigate VR - Equipable Dynamic Compass and Maps.esp";
+	bool EqualsIgnoreCase(const std::string_view left, const std::string_view right)
+	{
+		return left.size() == right.size() &&
+		       std::equal(
+			   left.begin(),
+			   left.end(),
+			   right.begin(),
+			   [](const char leftCharacter, const char rightCharacter) {
+				   return std::tolower(static_cast<unsigned char>(leftCharacter)) ==
+				          std::tolower(static_cast<unsigned char>(rightCharacter));
+			   });
+	}
 
-	bool IsNavigateVRMapArmor(const RE::TESObjectARMO& armor)
+	bool IsNavigateVRMapArmor(
+		const RE::TESObjectARMO& armor,
+		const std::string_view controllerPlugin)
 	{
 		const auto* file = armor.GetFile(0);
-		return file && file->GetFilename() == kNavigateVRPlugin;
+		return file && EqualsIgnoreCase(file->GetFilename(), controllerPlugin);
 	}
 
 	class EquipmentMutationGuard
@@ -40,21 +51,13 @@ namespace
 
 namespace nvr
 {
-	bool EquipEventSink::Initialize(Registry& registry)
+	bool EquipEventSink::Initialize(Registry& registry, const ControllerSettings& settings)
 	{
 		registry_ = std::addressof(registry);
-
-		auto* dataHandler = RE::TESDataHandler::GetSingleton();
-		controller_ = dataHandler ?
-			dataHandler->LookupForm<RE::TESObjectWEAP>(
-				kNavigateVRWorldMapLocalID,
-				kNavigateVRPlugin) :
-			nullptr;
+		controllerPlugin_ = settings.plugin;
+		controller_ = ResolveController(settings);
 		if (!controller_) {
-			logger::error(
-				"NavigateVR controller weapon 0x{:06X} could not be resolved from {}",
-				kNavigateVRWorldMapLocalID,
-				kNavigateVRPlugin);
+			logger::error("NavigateVR controller weapon could not be resolved; map selection is disabled.");
 			return false;
 		}
 
@@ -70,6 +73,56 @@ namespace nvr
 			controller_->GetFormEditorID(),
 			controller_->GetFormID());
 		return true;
+	}
+
+	RE::TESObjectWEAP* EquipEventSink::ResolveController(
+		const ControllerSettings& settings) const
+	{
+		if (!settings.editorID.empty()) {
+			if (auto* controller =
+					RE::TESForm::LookupByEditorID<RE::TESObjectWEAP>(settings.editorID)) {
+				const auto* file = controller->GetFile(0);
+				if (file && EqualsIgnoreCase(file->GetFilename(), settings.plugin)) {
+					logger::info(
+						"Resolved NavigateVR controller by EditorID {} from {} ({:08X}).",
+						settings.editorID,
+						file->GetFilename(),
+						controller->GetFormID());
+					return controller;
+				}
+
+				logger::warn(
+					"EditorID {} resolved to {}, not configured plugin {}; trying local FormID fallback.",
+					settings.editorID,
+					file ? file->GetFilename() : "<no owning plugin>",
+					settings.plugin);
+			} else {
+				logger::warn(
+					"NavigateVR controller EditorID {} was not found; trying local FormID fallback.",
+					settings.editorID);
+			}
+		}
+
+		if (settings.localID) {
+			auto* dataHandler = RE::TESDataHandler::GetSingleton();
+			if (auto* controller = dataHandler ?
+					dataHandler->LookupForm<RE::TESObjectWEAP>(*settings.localID, settings.plugin) :
+					nullptr) {
+				logger::info(
+					"Resolved NavigateVR controller by local FormID 0x{:06X} from {} ({:08X}).",
+					*settings.localID,
+					settings.plugin,
+					controller->GetFormID());
+				return controller;
+			}
+
+			logger::warn(
+				"NavigateVR controller local FormID 0x{:06X} was not found in {}.",
+				*settings.localID,
+				settings.plugin);
+		}
+
+		return nullptr;
 	}
 
 	RE::BSEventNotifyControl EquipEventSink::ProcessEvent(
@@ -91,7 +144,7 @@ namespace nvr
 		if (event->baseObject != controller_->GetFormID()) {
 			if (event->equipped && pendingDefinition_) {
 				if (auto* armor = RE::TESForm::LookupByID<RE::TESObjectARMO>(event->baseObject);
-					armor && IsNavigateVRMapArmor(*armor)) {
+					armor && IsNavigateVRMapArmor(*armor, controllerPlugin_)) {
 					ReplaceNavigateVRMap(*player, *armor);
 				}
 			}

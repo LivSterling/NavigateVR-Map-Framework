@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Registry.h"
+#include "Settings.h"
 
 namespace nvr
 {
 	class EquipEventSink final : public RE::BSTEventSink<RE::TESEquipEvent>
 	{
 	public:
-		bool Initialize(Registry& registry);
+		bool Initialize(Registry& registry, const ControllerSettings& settings);
 
 		RE::BSEventNotifyControl ProcessEvent(
 			const RE::TESEquipEvent* event,
@@ -22,9 +23,11 @@ namespace nvr
 		void ReplaceNavigateVRMap(
 			RE::PlayerCharacter& player,
 			RE::TESObjectARMO& navigateVRMap);
+		RE::TESObjectWEAP* ResolveController(const ControllerSettings& settings) const;
 
 		Registry* registry_{ nullptr };
 		RE::TESObjectWEAP* controller_{ nullptr };
+		std::string controllerPlugin_;
 		RE::TESWorldSpace* lastExteriorWorldspace_{ nullptr };
 		const MapDefinition* pendingDefinition_{ nullptr };
 		RE::TESObjectARMO* activeMap_{ nullptr };

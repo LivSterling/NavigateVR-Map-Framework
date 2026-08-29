@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = "0.3.1"
+    [string]$Version = "0.3.2"
 )
 
 $ErrorActionPreference = "Stop"
@@ -40,6 +40,7 @@ New-Item -ItemType Directory -Path (Join-Path $stage "examples") -Force | Out-Nu
 New-Item -ItemType Directory -Path (Join-Path $stage "THIRD_PARTY_LICENSES") -Force | Out-Null
 
 Copy-Item -LiteralPath $dll -Destination (Join-Path $stage "SKSE\Plugins\NavigateVRMapFramework.dll")
+Copy-Item -LiteralPath (Join-Path $projectRoot "config\NavigateVRMapFramework.json") -Destination (Join-Path $stage "SKSE\Plugins\NavigateVRMapFramework.json")
 Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination $stage
 Copy-Item -LiteralPath (Join-Path $projectRoot "CHANGELOG.md") -Destination $stage
 Copy-Item -LiteralPath (Join-Path $projectRoot "LICENSE") -Destination $stage
@@ -48,6 +49,7 @@ Copy-Item -LiteralPath (Join-Path $projectRoot "lib\commonlibsse-ng\COPYING") -D
 Copy-Item -LiteralPath (Join-Path $projectRoot "lib\commonlibsse-ng\EXCEPTIONS.md") -Destination (Join-Path $stage "THIRD_PARTY_LICENSES\CommonLibSSE-NG-EXCEPTIONS.md")
 Copy-Item -LiteralPath (Join-Path $projectRoot "docs\MAP_ADDON_AUTHOR_GUIDE.md") -Destination (Join-Path $stage "docs")
 Copy-Item -LiteralPath (Join-Path $projectRoot "schema\navigatevr-maps.schema.json") -Destination (Join-Path $stage "schema")
+Copy-Item -LiteralPath (Join-Path $projectRoot "schema\navigatevr-map-framework-settings.schema.json") -Destination (Join-Path $stage "schema")
 Copy-Item -Path (Join-Path $projectRoot "config\examples\*") -Destination (Join-Path $stage "examples") -Recurse
 
 Compress-Archive -Path (Join-Path $stage "*") -DestinationPath $archive -CompressionLevel Optimal

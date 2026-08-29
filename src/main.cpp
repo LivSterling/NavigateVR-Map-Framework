@@ -1,10 +1,12 @@
 #include "pch.h"
 #include "EventSinks.h"
 #include "Registry.h"
+#include "Settings.h"
 
 namespace
 {
 	nvr::Registry registry;
+	nvr::ControllerSettings controllerSettings;
 	nvr::EquipEventSink equipEventSink;
 
 	void InitializeLog()
@@ -31,11 +33,17 @@ namespace
 
 		if (message->type == SKSE::MessagingInterface::kDataLoaded) {
 			const auto runtimePath = REL::Module::get().filePath();
-			const auto registryPath =
-				std::filesystem::path(std::wstring(runtimePath)).parent_path() /
-				"Data" / "SKSE" / "Plugins" / "NavigateVRMaps";
+			const auto dataPath =
+				std::filesystem::path(std::wstring(runtimePath)).parent_path() / "Data";
+			const auto registryPath = dataPath / "SKSE" / "Plugins" / "NavigateVRMaps";
+			const auto settingsPath =
+				dataPath / "SKSE" / "Plugins" / "NavigateVRMapFramework.json";
+			if (!controllerSettings.Load(settingsPath)) {
+				logger::error("Framework settings are invalid; map selection is disabled.");
+				return;
+			}
 			registry.Load(registryPath);
-			equipEventSink.Initialize(registry);
+			equipEventSink.Initialize(registry, controllerSettings);
 		}
 	}
 }
@@ -45,7 +53,7 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse)
 	InitializeLog();
 	SKSE::Init(skse);
 
-	logger::info("NavigateVR Map Framework 0.3.1 loading.");
+	logger::info("NavigateVR Map Framework 0.3.2 loading.");
 
 	auto* messaging = SKSE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(OnMessage)) {

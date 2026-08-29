@@ -7,8 +7,10 @@
 
 #include <algorithm>
 #include <charconv>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <format>
 #include <limits>
 #include <memory>
 #include <optional>

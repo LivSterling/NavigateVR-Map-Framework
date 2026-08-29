@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/navigatevr-map-framework-settings.schema.json",
+  "title": "NavigateVR Map Framework Settings",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "navigateVRController"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "navigateVRController": {
+      "type": "object",
+      "required": [
+        "plugin"
+      ],
+      "properties": {
+        "plugin": {
+          "type": "string",
+          "minLength": 5,
+          "pattern": "\\.(esm|esp|esl)$"
+        },
+        "editorID": {
+          "type": "string",
+          "minLength": 1
+        },
+        "formID": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^0[xX][0-9A-Fa-f]{1,8}$"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4294967295
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "editorID"
+          ]
+        },
+        {
+          "required": [
+            "formID"
+          ],
+          "properties": {
+            "formID": {
+              "not": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,7 +1,7 @@
 includes("lib/commonlibsse-ng")
 
 set_project("NavigateVRMapFramework")
-set_version("0.3.1")
+set_version("0.3.2")
 set_license("MIT")
 set_languages("c++23")
 
@@ -9,7 +9,7 @@ add_rules("mode.debug", "mode.releasedbg")
 add_requires("nlohmann_json v3.12.0")
 
 target("NavigateVRMapFramework")
-    set_version("0.3.1")
+    set_version("0.3.2")
     add_rules("commonlibsse-ng.plugin", {
         name = "NavigateVR Map Framework",
         author = "Sterlingchapman",

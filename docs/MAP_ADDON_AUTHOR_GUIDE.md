@@ -215,6 +215,12 @@ Papyrus calls, voice filenames, or other external references to those records.
 
 ## 8. Create the modular JSON
 
+The framework-wide `SKSE/Plugins/NavigateVRMapFramework.json` file identifies
+NavigateVR's controller weapon. It belongs to the framework package, not to an
+individual map addon. Do not bundle or overwrite that settings file from a map
+pack. Map addons contribute only their own definitions under
+`SKSE/Plugins/NavigateVRMaps`.
+
 Install the canonical definition under:
 
 ```text

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.2
+
+- Moved NavigateVR controller identification into
+  `SKSE/Plugins/NavigateVRMapFramework.json`.
+- Added EditorID-based lookup for `TRC_WorldMap`, with an owning-plugin check,
+  so FormID-compacted NavigateVR installations can be detected safely.
+- Retained a configurable plugin-local FormID fallback for customized or
+  older installations.
+- Made the NavigateVR plugin filename configurable for renamed plugins.
+- Removed the compiled controller plugin and FormID fallback; missing or
+  invalid framework settings now disable selection with a clear log message.
+- Added a machine-readable schema and explicit logging for controller
+  resolution.
+
 ## 0.3.1
 
 - Prevented recursive equip-event handling while the framework adds, equips,
