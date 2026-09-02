@@ -20,8 +20,14 @@ namespace nvr
 		bool enabled{ true };
 		bool useForInteriors{ true };
 		bool ownershipRequired{ false };
+		bool hasExplicitMatch{ false };
+		bool includeChildLocations{ true };
+		std::vector<FormSpec> matchLocationSpecs;
+		std::vector<FormSpec> matchWorldspaceSpecs;
 
 		RE::TESWorldSpace* worldspace{ nullptr };
+		std::vector<RE::BGSLocation*> matchLocations;
+		std::vector<RE::TESWorldSpace*> matchWorldspaces;
 		RE::TESObjectARMO* leftMap{ nullptr };
 		RE::TESObjectARMO* rightMap{ nullptr };
 		RE::TESObjectMISC* ownershipItem{ nullptr };
@@ -33,7 +39,8 @@ namespace nvr
 		bool Load(const std::filesystem::path& directory);
 
 		[[nodiscard]] const MapDefinition* Find(
-			const RE::TESWorldSpace* worldspace) const;
+			const RE::TESWorldSpace* worldspace,
+			const RE::BGSLocation* location) const;
 
 		[[nodiscard]] std::size_t Size() const noexcept;
 

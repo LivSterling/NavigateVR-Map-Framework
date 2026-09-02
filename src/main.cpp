@@ -53,7 +53,7 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse)
 	InitializeLog();
 	SKSE::Init(skse);
 
-	logger::info("NavigateVR Map Framework 0.3.2 loading.");
+	logger::info("NavigateVR Map Framework 0.4.0 loading.");
 
 	auto* messaging = SKSE::GetMessagingInterface();
 	if (!messaging || !messaging->RegisterListener(OnMessage)) {
