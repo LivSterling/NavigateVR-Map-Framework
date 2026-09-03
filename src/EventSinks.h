@@ -29,6 +29,7 @@ namespace nvr
 		RE::TESObjectWEAP* controller_{ nullptr };
 		std::string controllerPlugin_;
 		RE::TESWorldSpace* lastExteriorWorldspace_{ nullptr };
+		RE::BGSLocation* lastKnownLocation_{ nullptr };
 		const MapDefinition* pendingDefinition_{ nullptr };
 		RE::TESObjectARMO* activeMap_{ nullptr };
 		bool pendingLeftHand_{ false };

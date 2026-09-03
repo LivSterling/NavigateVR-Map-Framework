@@ -1,16 +1,17 @@
 # NavigateVR Map Framework
 
 NavigateVR Map Framework is an SKSEVR plugin that lets independent NavigateVR
-map packs register physical maps by worldspace. It adds this support without
+map packs register physical maps by worldspace or location. It adds this support without
 replacing NavigateVR's Papyrus scripts and without hard-coding every map pack
 into the DLL.
 
 Each addon ships one JSON file. When the player draws NavigateVR's **Map of
 Provinces and Isles**, the framework:
 
-1. Determines the player's current exterior worldspace, or uses the last
-   exterior worldspace it observed while the player is inside.
-2. Finds the highest-priority enabled map definition for that worldspace.
+1. Determines the player's current worldspace and location, with cached values
+   available for interiors that do not expose either one.
+2. Finds the most specific enabled definition: exact location, child location,
+   then worldspace, followed by author-defined priority.
 3. Optionally checks for a miscellaneous ownership item.
 4. Lets NavigateVR perform its normal draw operation.
 5. Replaces the normal displayed map armor with the registered left- or
@@ -85,13 +86,20 @@ one uniquely named file so it can be installed and removed independently.
 - Selection occurs when the Map of Provinces and Isles is drawn.
 - Changing worldspaces while the map remains drawn does not live-switch it.
   Stow and redraw the map after changing worldspaces.
-- Interior support uses an in-memory cache of the last exterior worldspace
+- Interior support uses in-memory caches of the last worldspace and location
   observed when the controller map was previously drawn.
 - The cache is not saved in the player's save file. Loading directly into an
   interior before the framework has observed its exterior may fall back to
   NavigateVR's normal map.
-- Matching is by exact WRLD record. Tamriel hold boundaries are still handled
-  by NavigateVR's original logic.
+- Schema-version-1 definitions continue to match their exact top-level WRLD.
+- Schema-version-2 definitions may declare `selection.match.locations` for
+  open Tamriel towns and `selection.match.worldspaces` for optional overhaul
+  aliases. Matching a registered location can include its child locations.
+- A version-2 definition with `selection.match` does not implicitly match its
+  top-level `worldspace`. This lets a town use Tamriel coordinates for marker
+  calibration without selecting that town map everywhere in Skyrim.
+- Tamriel hold boundaries remain handled by NavigateVR's original logic unless
+  a more specific location definition matches.
 - Worldspace display names are not unique identifiers. For example,
   `BSHeartland.esm:0x0A764B` is named `Tamriel` in-game but is a separate
   worldspace from `Skyrim.esm:0x00003C`. A Bruma definition must target the
@@ -120,9 +128,10 @@ setting `required` to `false`, makes the map always available.
 
 ## Priorities
 
-More than one addon may target the same worldspace. Higher `priority` values
-win. Use `100` for an ordinary exact-worldspace map. Reserve higher values for
-intentional replacers or compatibility patches.
+More than one addon may match the same place. Exact location matches beat child
+location matches, which beat worldspace matches. Within the same match class,
+higher `priority` values win. Use `100` for an ordinary map. Reserve higher
+values for intentional replacers or compatibility patches.
 
 When equal-priority definitions target the same worldspace, selection is
 deterministic by JSON filename and map ID, but authors should avoid relying on
@@ -143,7 +152,7 @@ The log reports:
 - Every JSON file parsed
 - Every definition successfully resolved
 - Missing plugins, forms, or ownership items
-- The worldspace detected when the controller is drawn
+- The worldspace and location detected when the controller is drawn
 - The map selected and the hand used
 
 ## Creating an addon
@@ -185,7 +194,7 @@ This framework selects physical map armors. It does not:
 - Replace NavigateVR's stowing or map-case logic
 - Add world-map markers by itself
 - Alter map textures at runtime
-- Detect arbitrary Tamriel subregions
+- Infer unnamed Tamriel regions that have no registered `LCTN`
 - Automatically manufacture map armor records from textures
 - Persist the last exterior worldspace across saved games
 

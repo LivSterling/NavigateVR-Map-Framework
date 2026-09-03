@@ -48,9 +48,10 @@ All Skyrim holds share `Tamriel`, so a WRLD match cannot distinguish one hold
 from another. Continue using NavigateVR's original hold-selection behavior for
 those maps.
 
-Open Cities-style mods may move a city into `Tamriel`. A definition targeting
-the vanilla child worldspace will not match that alternate implementation
-without a separate compatibility strategy.
+Schema version 2 can select an open town by its `LCTN` while retaining Tamriel
+as the map's coordinate worldspace. Optional WRLD aliases cover overhauls that
+move the town into a separate worldspace. Uninstalled alias plugins are ignored
+safely and do not become ESP masters.
 
 ## 2. Prepare textures
 
@@ -284,7 +285,7 @@ Incorrect: "formID": "0xFE123800"
 
 | Field | Meaning |
 |---|---|
-| `schemaVersion` | JSON format version; currently `1` |
+| `schemaVersion` | JSON format version; `1` for exact-WRLD definitions, `2` when using `selection.match` |
 | `mapPack` | Human-readable pack name |
 | `id` | Stable identifier unique within the installed registry |
 | `worldspace` | Exact represented WRLD |
@@ -295,11 +296,84 @@ Incorrect: "formID": "0xFE123800"
 | `selection.enabled` | Allows temporarily disabling an entry |
 | `selection.priority` | Higher wins when two maps share a worldspace |
 | `selection.useForInteriors` | Allows cached exterior matching indoors |
+| `selection.match.locations` | Optional `LCTN` forms used to select open-town and regional maps |
+| `selection.match.worldspaces` | Optional alternate `WRLD` aliases, including overhaul-added spaces |
+| `selection.match.includeChildLocations` | Whether descendant locations also match; defaults to `true` |
 | `markers.calibration.left` | Left-hand 2x3 world-to-UV matrix |
 | `markers.calibration.right` | Right-hand 2x3 world-to-UV matrix |
 
 Unknown top-level map fields are ignored by the selector, allowing other
 NavigateVR tools to share the definition.
+
+### Open-town selection
+
+Use schema version 2 when a map depicts a town inside Skyrim's shared Tamriel
+worldspace:
+
+```json
+{
+  "schemaVersion": 2,
+  "mapPack": "Town Maps",
+  "maps": [
+    {
+      "id": "town_riverwood",
+      "worldspace": {
+        "plugin": "Skyrim.esm",
+        "formID": "0x00003C"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - Town Maps.esp",
+          "formID": "0x000800"
+        },
+        "right": {
+          "plugin": "NavigateVR - Town Maps.esp",
+          "formID": "0x000801"
+        }
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true,
+        "match": {
+          "locations": [
+            {
+              "plugin": "Skyrim.esm",
+              "formID": "0x013163"
+            }
+          ],
+          "includeChildLocations": true
+        }
+      }
+    }
+  ]
+}
+```
+
+The top-level `worldspace` still describes the coordinate system represented
+by the texture and is available to map-marker tools. Once `selection.match` is
+present, the selector uses only its declared criteria; it does not treat that
+top-level Tamriel form as a selection rule.
+
+`locations` and `worldspaces` are OR criteria. Optional aliases can therefore
+support a city overhaul without making it a plugin master:
+
+```json
+"match": {
+  "locations": [
+    { "plugin": "Skyrim.esm", "formID": "0x018A49" }
+  ],
+  "worldspaces": [
+    { "plugin": "Holds.esp", "formID": "0x000D62" },
+    { "plugin": "Holds.esp", "formID": "0x15E3A7" }
+  ],
+  "includeChildLocations": true
+}
+```
+
+If `Holds.esp` is absent, those WRLD aliases are logged and ignored while the
+vanilla Falkreath location continues to work. If it is installed, either its
+preserved vanilla location or either declared WRLD can select the town map.
 
 ## 9. Calibrate map markers
 
@@ -437,8 +511,9 @@ Reusing NavigateVR's existing hold-map ownership items may be more compatible
 than adding five new purchase systems. Test this design against users who do
 not own every hold map.
 
-Open Cities compatibility should be documented separately because those cities
-may no longer use the vanilla child WRLD while the player is outdoors.
+Open-city compatibility can use the same version-2 location and optional-WRLD
+matching described above. Confirm the overhaul's authored `LCTN` or `WRLD`
+records rather than copying a generated DynDOLOD or Occlusion override.
 
 ## Release checklist
 

@@ -152,13 +152,20 @@ namespace nvr
 		}
 
 		auto* currentWorldspace = player->GetWorldspace();
+		auto* currentLocation = player->GetCurrentLocation();
 		if (currentWorldspace) {
 			lastExteriorWorldspace_ = currentWorldspace;
+			lastKnownLocation_ = currentLocation;
+		} else if (currentLocation) {
+			lastKnownLocation_ = currentLocation;
 		}
 
 		const auto* effectiveWorldspace =
 			currentWorldspace ? currentWorldspace : lastExteriorWorldspace_;
-		const auto* definition = registry_->Find(effectiveWorldspace);
+		const auto* effectiveLocation =
+			currentLocation ? currentLocation :
+			(!currentWorldspace ? lastKnownLocation_ : nullptr);
+		const auto* definition = registry_->Find(effectiveWorldspace, effectiveLocation);
 
 		const auto rightHand = player->GetEquippedObject(false) == controller_;
 		const auto leftHand = player->GetEquippedObject(true) == controller_;
@@ -178,9 +185,10 @@ namespace nvr
 		if (!definition) {
 			pendingDefinition_ = nullptr;
 			logger::info(
-				"NavigateVR controller equipped in {} hand; no registered map for worldspace {:08X}.",
+				"NavigateVR controller equipped in {} hand; no registered map for worldspace {:08X}, location {:08X}.",
 				hand,
-				effectiveWorldspace ? effectiveWorldspace->GetFormID() : 0);
+				effectiveWorldspace ? effectiveWorldspace->GetFormID() : 0,
+				effectiveLocation ? effectiveLocation->GetFormID() : 0);
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
@@ -196,19 +204,21 @@ namespace nvr
 			(!definition->ownershipItem || player->GetItemCount(definition->ownershipItem) < 1)) {
 			pendingDefinition_ = nullptr;
 			logger::info(
-				"Map {} matched worldspace {:08X}, but its ownership item is missing.",
+				"Map {} matched worldspace {:08X}, location {:08X}, but its ownership item is missing.",
 				definition->id,
-				effectiveWorldspace->GetFormID());
+				effectiveWorldspace ? effectiveWorldspace->GetFormID() : 0,
+				effectiveLocation ? effectiveLocation->GetFormID() : 0);
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
 		pendingDefinition_ = definition;
 		pendingLeftHand_ = leftHand;
 		logger::info(
-			"NavigateVR controller equipped in {} hand; queued map {} for worldspace {:08X}.",
+			"NavigateVR controller equipped in {} hand; queued map {} for worldspace {:08X}, location {:08X}.",
 			hand,
 			definition->id,
-			effectiveWorldspace->GetFormID());
+			effectiveWorldspace ? effectiveWorldspace->GetFormID() : 0,
+			effectiveLocation ? effectiveLocation->GetFormID() : 0);
 		return RE::BSEventNotifyControl::kContinue;
 	}
 

@@ -58,7 +58,7 @@ foreach ($inputPath in $Path) {
     $resolved = Resolve-Path -LiteralPath $inputPath
     $document = Get-Content -Raw -LiteralPath $resolved | ConvertFrom-Json
 
-    if ($document.schemaVersion -ne 1) {
+    if ($document.schemaVersion -notin @(1, 2)) {
         throw "$resolved has unsupported schemaVersion '$($document.schemaVersion)'."
     }
     if ([string]::IsNullOrWhiteSpace([string]$document.mapPack)) {
@@ -80,6 +80,24 @@ foreach ($inputPath in $Path) {
         Assert-FormSpec $map.worldspace "$id.worldspace"
         Assert-FormSpec $map.items.left "$id.items.left"
         Assert-FormSpec $map.items.right "$id.items.right"
+
+        if ($null -ne $map.selection.match) {
+            if ($document.schemaVersion -ne 2) {
+                throw "$id.selection.match requires schemaVersion 2."
+            }
+
+            $locations = @($map.selection.match.locations | Where-Object { $null -ne $_ })
+            $worldspaces = @($map.selection.match.worldspaces | Where-Object { $null -ne $_ })
+            if ($locations.Count -eq 0 -and $worldspaces.Count -eq 0) {
+                throw "$id.selection.match must declare locations or worldspaces."
+            }
+            for ($index = 0; $index -lt $locations.Count; $index++) {
+                Assert-FormSpec $locations[$index] "$id.selection.match.locations[$index]"
+            }
+            for ($index = 0; $index -lt $worldspaces.Count; $index++) {
+                Assert-FormSpec $worldspaces[$index] "$id.selection.match.worldspaces[$index]"
+            }
+        }
 
         if ($map.ownership.required -eq $true) {
             Assert-FormSpec $map.ownership.item "$id.ownership.item"

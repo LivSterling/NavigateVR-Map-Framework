@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "mapPack": "Open Town Example",
+  "maps": [
+    {
+      "id": "town_riverwood",
+      "worldspace": {
+        "plugin": "Skyrim.esm",
+        "formID": "0x00003C"
+      },
+      "items": {
+        "left": {
+          "plugin": "NavigateVR - Town Maps.esp",
+          "formID": "0x000800"
+        },
+        "right": {
+          "plugin": "NavigateVR - Town Maps.esp",
+          "formID": "0x000801"
+        }
+      },
+      "ownership": {
+        "required": true,
+        "item": {
+          "plugin": "Navigate VR - Equipable Dynamic Compass and Maps.esp",
+          "formID": "0x0C0BB7"
+        }
+      },
+      "selection": {
+        "enabled": true,
+        "priority": 100,
+        "useForInteriors": true,
+        "match": {
+          "locations": [
+            {
+              "plugin": "Skyrim.esm",
+              "formID": "0x013163"
+            }
+          ],
+          "includeChildLocations": true
+        }
+      }
+    }
+  ]
+}

@@ -54,6 +54,24 @@ namespace
 		return nvr::FormSpec{ plugin, *formID };
 	}
 
+	bool ParseFormSpecArray(
+		const json& value,
+		std::vector<nvr::FormSpec>& destination)
+	{
+		if (!value.is_array()) {
+			return false;
+		}
+
+		for (const auto& entry : value) {
+			const auto spec = ParseFormSpec(entry);
+			if (!spec) {
+				return false;
+			}
+			destination.push_back(*spec);
+		}
+		return true;
+	}
+
 	template <class T>
 	T* Resolve(const nvr::FormSpec& spec)
 	{
@@ -99,7 +117,8 @@ namespace nvr
 				}
 
 				const auto root = json::parse(stream);
-				if (root.value("schemaVersion", 0) != 1) {
+				const auto schemaVersion = root.value("schemaVersion", 0);
+				if (schemaVersion != 1 && schemaVersion != 2) {
 					logger::error("Unsupported or missing schemaVersion in {}", path.string());
 					continue;
 				}
@@ -138,6 +157,39 @@ namespace nvr
 						definition.enabled = selection->value("enabled", true);
 						definition.priority = selection->value("priority", 0);
 						definition.useForInteriors = selection->value("useForInteriors", true);
+
+						if (const auto match = selection->find("match"); match != selection->end()) {
+							if (schemaVersion < 2 || !match->is_object()) {
+								logger::error(
+									"Map {} has selection.match but does not use schemaVersion 2",
+									id);
+								continue;
+							}
+
+							definition.hasExplicitMatch = true;
+							definition.includeChildLocations =
+								match->value("includeChildLocations", true);
+
+							if (const auto locations = match->find("locations");
+								locations != match->end() &&
+								!ParseFormSpecArray(*locations, definition.matchLocationSpecs)) {
+								logger::error("Map {} has invalid location match forms", id);
+								continue;
+							}
+
+							if (const auto worldspaces = match->find("worldspaces");
+								worldspaces != match->end() &&
+								!ParseFormSpecArray(*worldspaces, definition.matchWorldspaceSpecs)) {
+								logger::error("Map {} has invalid worldspace match forms", id);
+								continue;
+							}
+
+							if (definition.matchLocationSpecs.empty() &&
+								definition.matchWorldspaceSpecs.empty()) {
+								logger::error("Map {} declares an empty selection.match", id);
+								continue;
+							}
+						}
 					}
 
 					if (const auto ownership = value.find("ownership");
@@ -161,6 +213,41 @@ namespace nvr
 							definition.id,
 							path.filename().string());
 						continue;
+					}
+
+					if (definition.hasExplicitMatch) {
+						for (const auto& spec : definition.matchLocationSpecs) {
+							if (auto* location = Resolve<RE::BGSLocation>(spec)) {
+								definition.matchLocations.push_back(location);
+							} else {
+								logger::warn(
+									"Map {} ignored unresolved optional location {}:{:06X}",
+									definition.id,
+									spec.plugin,
+									spec.localID);
+							}
+						}
+						for (const auto& spec : definition.matchWorldspaceSpecs) {
+							if (auto* matchWorldspace = Resolve<RE::TESWorldSpace>(spec)) {
+								definition.matchWorldspaces.push_back(matchWorldspace);
+							} else {
+								logger::warn(
+									"Map {} ignored unresolved optional worldspace {}:{:06X}",
+									definition.id,
+									spec.plugin,
+									spec.localID);
+							}
+						}
+
+						if (definition.matchLocations.empty() &&
+							definition.matchWorldspaces.empty()) {
+							logger::warn(
+								"Skipping map {}: none of its selection.match forms could be resolved",
+								definition.id);
+							continue;
+						}
+					} else {
+						definition.matchWorldspaces.push_back(definition.worldspace);
 					}
 
 					if (definition.ownershipRequired) {
@@ -189,12 +276,6 @@ namespace nvr
 		}
 
 		std::ranges::sort(maps_, [](const auto& left, const auto& right) {
-			if (left.worldspaceSpec.plugin != right.worldspaceSpec.plugin) {
-				return left.worldspaceSpec.plugin < right.worldspaceSpec.plugin;
-			}
-			if (left.worldspaceSpec.localID != right.worldspaceSpec.localID) {
-				return left.worldspaceSpec.localID < right.worldspaceSpec.localID;
-			}
 			if (left.priority != right.priority) {
 				return left.priority > right.priority;
 			}
@@ -208,16 +289,45 @@ namespace nvr
 		return true;
 	}
 
-	const MapDefinition* Registry::Find(const RE::TESWorldSpace* worldspace) const
+	const MapDefinition* Registry::Find(
+		const RE::TESWorldSpace* worldspace,
+		const RE::BGSLocation* location) const
 	{
-		if (!worldspace) {
-			return nullptr;
+		const MapDefinition* best{ nullptr };
+		std::uint8_t bestSpecificity{ 0 };
+
+		for (const auto& map : maps_) {
+			std::uint8_t specificity{ 0 };
+
+			if (location) {
+				for (const auto* registeredLocation : map.matchLocations) {
+					if (registeredLocation == location) {
+						specificity = 3;
+						break;
+					}
+					if (map.includeChildLocations && registeredLocation->IsChild(location)) {
+						specificity = (std::max)(specificity, static_cast<std::uint8_t>(2));
+					}
+				}
+			}
+
+			if (specificity == 0 && worldspace &&
+				std::ranges::find(map.matchWorldspaces, worldspace) != map.matchWorldspaces.end()) {
+				specificity = 1;
+			}
+
+			if (specificity == 0) {
+				continue;
+			}
+
+			if (!best || specificity > bestSpecificity ||
+				(specificity == bestSpecificity && map.priority > best->priority)) {
+				best = std::addressof(map);
+				bestSpecificity = specificity;
+			}
 		}
 
-		const auto match = std::ranges::find_if(
-			maps_,
-			[worldspace](const auto& map) { return map.worldspace == worldspace; });
-		return match == maps_.end() ? nullptr : std::addressof(*match);
+		return best;
 	}
 
 	std::size_t Registry::Size() const noexcept
